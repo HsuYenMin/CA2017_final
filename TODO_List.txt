@@ -1,0 +1,20 @@
+To do list (module):
+
+	baseline:
+		Cache I/D		...... Done (HW5)
+		Register		...... Done (HW3)
+		Control Unit		...... working...
+		ALU Control Unit	...... working...
+		ALU			...... Need Modify (HW3 or HW1)
+		Forwarding Unit		...... 
+		Hazard Unit		......
+
+		Pipeline MIPS
+
+	L2 Cache:
+
+
+	Branch Prediction:
+
+
+	Assembly:
