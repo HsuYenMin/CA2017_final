@@ -100,7 +100,9 @@ assign DCACHE_wdata = MemWriteData_Mem;
 
 //-- SubModules ------------------------------------
 HazardDetectionUnit Hazard1(.IdExMemRead(ctrl_Ex[5]), .IdExRegRt(Rt_Ex), .IfIdRegRt(Instruction_Id[20:16]),
-                            .IfIdRegRs(Instruction_Id[25:21]), .Branch(ctrl_Id[3]), .Jr(Jr_Id), .ExRegWrite(ctrl_Ex[1]),
+                            .IfIdRegRs(Instruction_Id[25:21]), .Branch(ctrl_Id[3]), .Jr(Jr_Id), 
+							.Jal_Ex(ctrl_Ex[0]), .Jal_Mem(ctrl_Mem[0]), .Jal_Wb(Jal_Wb),
+							.ExRegWrite(ctrl_Ex[1]),
                             .ExRegWriteAddr(WriteReg_Ex), .MemRegWrite(ctrl_Mem[1]), .MemRegWriteAddr(WriteReg_Mem),
                             .WbRegWrite(RegWrite_Wb), .WbRegWriteAddr(WriteReg_Wb), .Stall(Stall)
                             );

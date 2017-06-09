@@ -6,6 +6,7 @@ module HazardDetectionUnit(
 	
 	Branch,
 	Jr,
+	Jal_Ex, Jal_Mem, Jal_Wb,
 	ExRegWrite,
 	ExRegWriteAddr,
 	MemRegWrite,
@@ -18,7 +19,7 @@ module HazardDetectionUnit(
 input IdExMemRead;
 input [4:0] IdExRegRt, IfIdRegRt, IfIdRegRs;
 
-input Branch, Jr;
+input Branch, Jr, Jal_Ex, Jal_Mem, Jal_Wb;
 input ExRegWrite,MemRegWrite,WbRegWrite;
 input [4:0] ExRegWriteAddr,MemRegWriteAddr,WbRegWriteAddr;
 
@@ -35,7 +36,7 @@ assign Stall = Stall_out;
 always@(*) begin	
 	if( IdExMemRead && ((IdExRegRt == IfIdRegRs) || (IdExRegRt == IfIdRegRt)))begin	// data hazard
 		Stall_out = 1;
-	end else if(Branch || Jr) begin	// branch hazard
+	end else if(Branch) begin	// branch hazard
 		if( ExRegWrite && ((ExRegWriteAddr == IfIdRegRs) || (ExRegWriteAddr == IfIdRegRt)))begin
 			Stall_out = 1;
 		end else if( MemRegWrite && ((MemRegWriteAddr == IfIdRegRs) || (MemRegWriteAddr == IfIdRegRt)))begin
@@ -45,8 +46,26 @@ always@(*) begin
 		end else begin
 			Stall_out = 0;
 		end
+	end else if(Jr) begin
+		if( ExRegWrite && ((ExRegWriteAddr == IfIdRegRs)))begin
+			Stall_out = 1;
+		end else if( MemRegWrite && ((MemRegWriteAddr == IfIdRegRs)))begin
+			Stall_out = 1;
+		end else if( WbRegWrite && ((WbRegWriteAddr == IfIdRegRs)))begin
+			Stall_out = 1;
+		end else begin
+			Stall_out = 0;
+		end
 	end else begin
-		Stall_out = 0;
+		if( Jal_Ex)begin
+			Stall_out = 1;
+		end else if( Jal_Mem)begin
+			Stall_out = 1;
+		end else if( Jal_Wb)begin
+			Stall_out = 1;
+		end else begin
+			Stall_out = 0;
+		end
 	end
 
 end
