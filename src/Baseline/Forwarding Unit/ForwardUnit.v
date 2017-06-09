@@ -1,19 +1,19 @@
 module ForwardUnit(
 	IdExRs,
 	IdExRt,
-	MemWbRegW,
-	MemWbRd,
 	ExMemRegW,
 	ExMemRd,
+	MemWbRegW,
+	MemWbRd,
 	ForwardA,
 	ForwardB
 );
 input  [4:0] IdExRs;
 input  [4:0] IdExRt;
-input        MemWbRegW;
-input  [4:0] MemWbRd;
 input        ExMemRegW;
 input  [4:0] ExMemRd;
+input        MemWbRegW;
+input  [4:0] MemWbRd;
 output [1:0] ForwardA;
 output [1:0] ForwardB;
 

@@ -4,7 +4,6 @@ module ALU(
     x,
     y,
     sa,
-    Zero,
     out 
 );
     
@@ -12,15 +11,12 @@ module ALU(
     input  signed [31:0] x;
     input  signed [31:0] y;
     input         [4:0]  sa;
-    output               Zero;
     output signed [31:0] out;
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-	//wire signed [7:0] x_s, y_s;
 	reg signed [31:0] Out_r;
-	
+
 	assign out = Out_r;
-	assign Zero = (Out_r == 0)? 1 : 0;
 	
 	always@ (*) begin
 		if(ctrl == 4'b0000)      Out_r = x + y;		// add

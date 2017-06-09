@@ -1,7 +1,7 @@
 module ALUControler(
     Op,
     FuncField,
-    ALUctrl,
+    ALUctrl
 );
 	
 	input  [5:0] ALUOp;
