@@ -31,10 +31,10 @@ module Control(
 	reg [9:0] Out;
 	assign {Jump,Jr,RegDst,ALUsrc,MemRead,MemWrite,Branch,MemtoReg,RegWrite,Jal} = Out;
 	wire I_type;
-	assign I_Type = ((Op = 6'b001000) || (Op = 6'b001100) || (Op = 6'b001101) || (Op = 6'b001110) || (Op = 6'b001010)) ? 1 : 0;
+	assign I_Type = ((Op == 6'b001000) || (Op == 6'b001100) || (Op == 6'b001101) || (Op == 6'b001110) || (Op == 6'b001010)) ? 1 : 0;
 
 	always@ (*) begin
-		if(OP == 6'b000000) begin
+		if(Op == 6'b000000) begin
 			if(FuncField == 6'b001000) Out = 10'b1100000000;	// Jr
 			else if(FuncField == 6'b001001)	Out = 10'b1110000011;	// Jalr ; if (PC <- rd) Jal = 0;
 			else                 Out = 10'b0010000010;	// r-type

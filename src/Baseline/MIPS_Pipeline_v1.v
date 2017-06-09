@@ -1,3 +1,16 @@
+//`include "./ALU/ALU.v"
+//`include "./ALUControl/ALUControl.v"
+//`include "./ControlUnit/ControlUnit.v"
+//`include "./ForwardUnit/ForwardUnit.v"
+//`include "./HazardDetectionUnit/HazardDetectionUnit.v"
+//`include "./Register/Registers.v"
+`include "./ALU.v"
+`include "./ALUControl.v"
+`include "./ControlUnit.v"
+`include "./ForwardUnit.v"
+`include "./HazardDetectionUnit.v"
+`include "./Registers.v"
+
 module MIPS_Pipeline(
 // control interface
 	clk, 
@@ -43,16 +56,20 @@ reg IfIdflush;
 //--	 ID Stage --------------------------
 reg [31:0] PC4_Id, BranchAddr_Id;
 reg [31:0] Instruction_Id;
-reg        Jump_Id, Jr_Id, Stall;
-reg [7:0]  ctrl_Id;
-reg [31:0] ReadData1, ReadData2, WriteReg, Writedata, SignExtend_Id;
-reg [3:0]  ALUctrl_Id;
+wire        Jump_Id, Jr_Id, Stall;
+wire [7:0]  ctrl_Id;
+reg [4:0]  WriteReg;
+wire [31:0] ReadData1, ReadData2;
+reg [31:0] Writedata, SignExtend_Id;
+wire [3:0]  ALUctrl_Id;
 reg [149:0] IdEx_n, IdEx;
 //--	 Ex Stage --------------------------
 reg [31:0] PC4_Ex;
-reg        RegDst_Ex, ALUSrc_Ex, ForwardA_Ex, ForwardB_Ex;
+reg        RegDst_Ex, ALUSrc_Ex;
+wire [1:0]  ForwardA_Ex, ForwardB_Ex;
 reg [5:0]  ctrl_Ex;
-reg [31:0] ReadData1_Ex, ReadData2_Ex, A_Ex, MemData_Ex, B_Ex, SignExtend_Ex, Writedata_Ex;
+reg [31:0] ReadData1_Ex, ReadData2_Ex, A_Ex, MemData_Ex, B_Ex, SignExtend_Ex;
+wire [31:0] Writedata_Ex;
 reg [3:0]  ALUctrl_Ex;
 reg [4:0]  Rs_Ex, Rt_Ex, Rd_Ex, WriteReg_Ex;
 reg [106:0] ExMem_n, ExMem;
@@ -66,7 +83,7 @@ reg [103:0] MemWb_n, MemWb;
 //--	 Wb Stage --------------------------
 reg [31:0] PC4_Wb;
 reg        MemtoReg_Wb, RegWrite_Wb, Jal_Wb;
-reg [31:0] MemReadData_Wb, ALUOut_Wb;
+reg [31:0] Writedata_Wb, MemReadData_Wb, ALUOut_Wb;
 reg [4:0]  WriteReg_Wb;
 reg [31:0] PC_n, PC, PCnext, MUX_Branch, MUX_Jump;
 
@@ -80,13 +97,12 @@ assign DCACHE_ren = MemRead_Mem;
 assign DCACHE_wen = MemWrite_Mem;
 assign DCACHE_addr = ALUOut_Mem[31:2];
 assign DCACHE_wdata = MemWriteData_Mem;
-assign MemReadData_Mem = DCACHE_rdata;
 
 //-- SubModules ------------------------------------
-HazardDetectionUnit Hazard1(.IdExMemRead(MemRead_Ex), .IdExRegRt(RegRt_Ex), .IfIdRegRt(Instruction_Id[20:16]),
-                            .IfIdRegRs(Instruction_Id[25:21]), .Branch(ctrl_Id[3]), .ExRegWrite(ctrl_Ex[1]),
+HazardDetectionUnit Hazard1(.IdExMemRead(ctrl_Ex[5]), .IdExRegRt(Rt_Ex), .IfIdRegRt(Instruction_Id[20:16]),
+                            .IfIdRegRs(Instruction_Id[25:21]), .Branch(ctrl_Id[3]), .Jr(Jr_Id), .ExRegWrite(ctrl_Ex[1]),
                             .ExRegWriteAddr(WriteReg_Ex), .MemRegWrite(ctrl_Mem[1]), .MemRegWriteAddr(WriteReg_Mem),
-                            .WbRegWrite(ctrl_Wb[1]), .WbRegWriteAddr(WriteReg_Wb), .Stall(Stall)
+                            .WbRegWrite(RegWrite_Wb), .WbRegWriteAddr(WriteReg_Wb), .Stall(Stall)
                             );
 
 Control Ctrl1(.Op(Instruction_Id[31:26]), .FuncField(Instruction_Id[5:0]), .Jump(Jump_Id), .Jr(Jr_Id),
@@ -119,11 +135,12 @@ end
 
 always@(*) begin
 	PC4_If = PC + 4;
-	IfId_n = (Stall || ICACHE_stall || DCACHE_stall) ? IfId : {PC4_If,ICACHE_rdata};
+	IfId_n = (Stall || ICACHE_stall || DCACHE_stall) ? IfId : 
+	         (IfIdflush) ? {PC4_If,32'd0} : {PC4_If,ICACHE_rdata};
 end
 
 always@(posedge clk or negedge rst_n) begin
-	if(~rst_n || IfIdflush) begin
+	if(~rst_n) begin
 		IfId <= 0;
 	end else begin
 		IfId <= IfId_n;
@@ -139,8 +156,8 @@ always@(*) begin
 	Writedata = (Jal_Wb) ? PC4_Wb : Writedata_Wb ;
 	SignExtend_Id = {{16{Instruction_Id[15]}}, Instruction_Id[15:0]};
 	BranchAddr_Id = PC4_Id + (SignExtend_Id << 2);
-	IfIdflush = (ctrl_Id[3] && (ReadData1 == ReadData2) && ~Stall) ? 1 : 0;
-	IdEx_n = (Stall||ICACHE_stall) ? 0 :
+	IfIdflush = ((ctrl_Id[3] && (ReadData1 == ReadData2) && ~Stall) || Jump_Id) ? 1 : 0;
+	IdEx_n = (Stall||ICACHE_stall) ? {PC4_Id, 8'b00000000, ReadData1, ReadData2, ALUctrl_Id, SignExtend_Id, Instruction_Id[25:16]} :
              (DCACHE_stall) ? IdEx :
 			 {PC4_Id, ctrl_Id, ReadData1, ReadData2, ALUctrl_Id, SignExtend_Id, Instruction_Id[25:16]};
 end
@@ -186,6 +203,7 @@ end
 
 always@(*) begin
 	{PC4_Mem, MemRead_Mem, MemWrite_Mem, Branch_Mem, ctrl_Mem, ALUOut_Mem, MemWriteData_Mem, WriteReg_Mem} = ExMem;
+	MemReadData_Mem = DCACHE_rdata;
 	MemWb_n = (DCACHE_stall) ? MemWb : {PC4_Mem, ctrl_Mem, MemReadData_Mem, ALUOut_Mem, WriteReg_Mem};
 end
 
