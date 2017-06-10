@@ -28,7 +28,7 @@ module MIPS_Pipeline(
 	DCACHE_addr,
 	DCACHE_wdata,
 	DCACHE_stall,
-	DCACHE_rdata,
+	DCACHE_rdata
 );
 input  		clk;
 input  		rst_n;
@@ -158,7 +158,7 @@ always@(*) begin
 	Writedata = (Jal_Wb) ? PC4_Wb : Writedata_Wb ;
 	SignExtend_Id = {{16{Instruction_Id[15]}}, Instruction_Id[15:0]};
 	BranchAddr_Id = PC4_Id + (SignExtend_Id << 2);
-	IfIdflush = ((ctrl_Id[3] && (ReadData1 == ReadData2) && ~Stall) || Jump_Id) ? 1 : 0;
+	IfIdflush = ((ctrl_Id[3] && (ReadData1 == ReadData2) || Jump_Id) && ~Stall) ? 1 : 0;
 	IdEx_n = (DCACHE_stall) ? IdEx :
 	         (Stall||ICACHE_stall) ? {PC4_Id, 8'b00000000, ReadData1, ReadData2, ALUctrl_Id, SignExtend_Id, Instruction_Id[25:16]} :
              {PC4_Id, ctrl_Id, ReadData1, ReadData2, ALUctrl_Id, SignExtend_Id, Instruction_Id[25:16]};
