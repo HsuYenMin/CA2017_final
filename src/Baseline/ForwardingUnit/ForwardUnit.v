@@ -25,11 +25,11 @@ assign ForwardB = ForwardB_r;
 always@(*) begin
 	
 	if( ExMemRegW && (ExMemRd != 0) && (ExMemRd == IdExRs)) ForwardA_r = 2'b10;
-	else if( MemWbRegW && (MemWbRd != 0) && (MemWbRd == IdExRs)) ForwardA_r = 2'b10;
+	else if( MemWbRegW && (MemWbRd != 0) && (MemWbRd == IdExRs)) ForwardA_r = 2'b01;
 	else ForwardA_r = 2'b00;
 
 	if( ExMemRegW && (ExMemRd != 0) && (ExMemRd == IdExRt)) ForwardB_r = 2'b10;
-	else if( MemWbRegW && (MemWbRd != 0) && (MemWbRd == IdExRt)) ForwardB_r = 2'b10;
+	else if( MemWbRegW && (MemWbRd != 0) && (MemWbRd == IdExRt)) ForwardB_r = 2'b01;
 	else ForwardB_r = 2'b00;
 end
 

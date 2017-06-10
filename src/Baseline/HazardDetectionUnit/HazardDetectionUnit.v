@@ -3,6 +3,7 @@ module HazardDetectionUnit(
 	IdExRegRt,
 	IfIdRegRt,
 	IfIdRegRs,
+	IfIdRegRd,
 	
 	Branch,
 	Jr,
@@ -17,7 +18,7 @@ module HazardDetectionUnit(
 	Stall
 );
 input IdExMemRead;
-input [4:0] IdExRegRt, IfIdRegRt, IfIdRegRs;
+input [4:0] IdExRegRt, IfIdRegRt, IfIdRegRs, IfIdRegRd;
 
 input Branch, Jr, Jal_Ex, Jal_Mem, Jal_Wb;
 input ExRegWrite,MemRegWrite,WbRegWrite;
@@ -35,6 +36,8 @@ assign Stall = Stall_out;
 	
 always@(*) begin	
 	if( IdExMemRead && ((IdExRegRt == IfIdRegRs) || (IdExRegRt == IfIdRegRt)))begin	// data hazard
+		Stall_out = 1;
+	end else if(WbRegWrite && ((IfIdRegRd == IfIdRegRs) || (IfIdRegRd == IfIdRegRt))) begin
 		Stall_out = 1;
 	end else if(Branch) begin	// branch hazard
 		if( ExRegWrite && ((ExRegWriteAddr == IfIdRegRs) || (ExRegWriteAddr == IfIdRegRt)))begin

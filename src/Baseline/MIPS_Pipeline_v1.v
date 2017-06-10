@@ -54,13 +54,13 @@ reg [31:0] PC4_If;
 reg [63:0] IfId_n, IfId;
 reg IfIdflush;
 //--	 ID Stage --------------------------
-reg [31:0] PC4_Id, BranchAddr_Id;
+reg signed [31:0] PC4_Id, BranchAddr_Id, SignExtend_Id;
 reg [31:0] Instruction_Id;
 wire        Jump_Id, Jr_Id, Stall;
 wire [7:0]  ctrl_Id;
 reg [4:0]  WriteReg;
 wire [31:0] ReadData1, ReadData2;
-reg [31:0] Writedata, SignExtend_Id;
+reg [31:0] Writedata;
 wire [3:0]  ALUctrl_Id;
 reg [149:0] IdEx_n, IdEx;
 //--	 Ex Stage --------------------------
@@ -102,7 +102,7 @@ assign DCACHE_wdata = MemWriteData_Mem;
 HazardDetectionUnit Hazard1(.IdExMemRead(ctrl_Ex[5]), .IdExRegRt(Rt_Ex), .IfIdRegRt(Instruction_Id[20:16]),
                             .IfIdRegRs(Instruction_Id[25:21]), .Branch(ctrl_Id[3]), .Jr(Jr_Id), 
 							.Jal_Ex(ctrl_Ex[0]), .Jal_Mem(ctrl_Mem[0]), .Jal_Wb(Jal_Wb),
-							.ExRegWrite(ctrl_Ex[1]),
+							.ExRegWrite(ctrl_Ex[1]), .IfIdRegRd(WriteReg),
                             .ExRegWriteAddr(WriteReg_Ex), .MemRegWrite(ctrl_Mem[1]), .MemRegWriteAddr(WriteReg_Mem),
                             .WbRegWrite(RegWrite_Wb), .WbRegWriteAddr(WriteReg_Wb), .Stall(Stall)
                             );
@@ -159,9 +159,9 @@ always@(*) begin
 	SignExtend_Id = {{16{Instruction_Id[15]}}, Instruction_Id[15:0]};
 	BranchAddr_Id = PC4_Id + (SignExtend_Id << 2);
 	IfIdflush = ((ctrl_Id[3] && (ReadData1 == ReadData2) && ~Stall) || Jump_Id) ? 1 : 0;
-	IdEx_n = (Stall||ICACHE_stall) ? {PC4_Id, 8'b00000000, ReadData1, ReadData2, ALUctrl_Id, SignExtend_Id, Instruction_Id[25:16]} :
-             (DCACHE_stall) ? IdEx :
-			 {PC4_Id, ctrl_Id, ReadData1, ReadData2, ALUctrl_Id, SignExtend_Id, Instruction_Id[25:16]};
+	IdEx_n = (DCACHE_stall) ? IdEx :
+	         (Stall||ICACHE_stall) ? {PC4_Id, 8'b00000000, ReadData1, ReadData2, ALUctrl_Id, SignExtend_Id, Instruction_Id[25:16]} :
+             {PC4_Id, ctrl_Id, ReadData1, ReadData2, ALUctrl_Id, SignExtend_Id, Instruction_Id[25:16]};
 end
 
 always@(posedge clk or negedge rst_n) begin
