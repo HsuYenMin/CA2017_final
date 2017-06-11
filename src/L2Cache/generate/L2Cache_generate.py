@@ -71,7 +71,7 @@ def param(nb):
 
 # In[8]:
 
-nb = sys.argv[1]
+nb = int(sys.argv[1])
 
 # nb = 20
 CheckNum = nb*2 + 1 #`EndSymbol
