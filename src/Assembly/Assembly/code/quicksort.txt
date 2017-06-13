@@ -1,0 +1,87 @@
+.text
+main:
+	addi $s0,$zero,50
+	addi $s1,$zero,0
+	addi $sp,$zero,1000
+
+startsort:
+	move $a0,$s1		# $a0 stores the base location(base) as an input
+	move $a1,$s1		# $a1 stores the left location(a) to be sorted as an input
+	addi $a2,$s0,-1
+	add $a2,$a2,$a2
+	add $a2,$a2,$a2
+	add $a2,$s1,$a2		# $a2 stores the right location(b) to be sorted as an input
+	jal qsort	
+	
+
+endst:	addi $t2,$zero,0x0932 
+	add $t0,$s1,$zero	#t0:address
+	add $t1,$zero,$zero	#t1:count
+	sw $t2,0x0100($zero)
+check:	beq $t1,$s0,over	#t1 = s0,over
+	lw $t2,0($t0)
+	addi $t0,$t0,4
+	sw $t2,0x0100($zero)
+	j check
+
+over:	addi $t2,$zero,0x0D5D
+	sw $t2,0x0100($zero)
+trap:	j trap
+
+	
+qsort:	bge $a1,$a2,endqsort
+	sw $a1,0($sp)
+	addi $sp,$sp,-4		#store left location in stack
+	sw $a2,0($sp)
+	addi $sp,$sp,-4		#store right location in stack
+	sw $ra,0($sp)
+	addi $sp,$sp,-4		#store return adress
+	jal partition
+	sw $v0,0($sp)
+	addi $sp,$sp,-4		#store pivot location in stack
+	#move $t1,$v0		#t1 to store the pivot location
+	add $t1,$v0,$zero
+	lw $a1,16($sp)		# left location = a
+	addi $a2,$t1,-4		# rithg location = pivot location - 4
+	jal qsort
+	lw $a1,4($sp)
+	addi $a1,$a1,4		#left location = pivot location + 4
+	lw $a2,12($sp)		#right location = b
+	jal qsort
+	lw $ra,8($sp)
+	addi $sp,$sp,16
+endqsort:
+	jr $ra
+	
+partition:
+	#move $t0,$a1		# $t0 = location a
+	#move $t1,$a2		# $t1 = location b
+	add $t0,$a1,$zero
+	add $t1,$a2,$zero
+	lw $t2,0($t1)		# $t2 = value of b(pivot)
+	#move $t3,$t0		# $t3 = location i(variable)
+	add $s3,$t0,$zero
+	lw $t4,0($t3)		# $t4 = value of base[i]
+	#move $t5,$t0		# $t5 = location j(variable)
+	add $t5,$t0,$zero
+	lw $t6,0($t5)		# $t6 = value of base[j]
+loop:	bge $t3,$t1,endpartition
+	ble $t4,$t2,swap
+	addi $t3,$t3,4
+	lw $t4,0($t3)
+	j loop
+swap:	sw $t4,0($t5)
+	sw $t6,0($t3)
+	addi $t3,$t3,4
+	lw $t4,0($t3)
+	addi $t5,$t5,4
+	lw $t6,0($t5)
+	j loop
+endpartition:
+	sw $t6,0($t1)
+	sw $t2,0($t5)
+	add $v0,$t5,$zero
+	#move $v0,$t5
+	jr $ra
+	
+	
