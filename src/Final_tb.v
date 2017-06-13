@@ -25,6 +25,10 @@
 	`define IMEM_INIT "I_mem_L2Cache"
 	`include "./TestBed_L2Cache.v"
 `endif
+`ifdef L2Cache_p1p2p3
+	`define IMEM_INIT "I_mem_L2Cache_p1p2p3"
+	`include "./TestBed_L2Cache_p1p2p3.v"
+`endif
 `ifdef Assembly
 	`define IMEM_INIT "I_mem_Assembly"
 	`include "./TestBed_Assembly.v"
@@ -132,17 +136,17 @@ module Final_tb;
 		$readmemb (`IMEM_INIT, slow_memI.mem ); // initialize data in IMEM
 
 		// waveform dump
-	    // $dumpfile("Final.vcd");
-	    // $dumpvars;
-	    $fsdbDumpfile("Final.fsdb");			
-		$fsdbDumpvars(0,Final_tb,"+mda");
+        $dumpfile("Final.vcd");
+        $dumpvars;
+		// $fsdbDumpfile("Final.fsdb");
+		// $fsdbDumpvars(0,Final_tb,"+mda");
 	
 		clk = 0;
 		rst_n = 1'b1;
 		#2 rst_n = 1'b0;
 		#(`CYCLE*8.5) rst_n = 1'b1;
      
-		#(`CYCLE*10000)	 $finish; // calculate clock cycles for all operation
+		#(`CYCLE*1000000)	 $finish; // calculate clock cycles for all operation
 		$display("-----------------------------------------------------\n");
 		$display("Error!!! There is something wrong with your code ...!\n");
 	 	$display("------The test result is .....FAIL ------------------\n");
