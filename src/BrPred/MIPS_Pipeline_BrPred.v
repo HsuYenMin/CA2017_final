@@ -10,6 +10,7 @@
 `include "./ForwardUnit.v"
 `include "./HazardDetectionUnit.v"
 `include "./Registers.v"
+`include "./brPre_v1.v"
 
 module MIPS_Pipeline(
 // control interface
@@ -99,6 +100,15 @@ assign DCACHE_addr = ALUOut_Mem[31:2];
 assign DCACHE_wdata = MemWriteData_Mem;
 
 //-- SubModules ------------------------------------
+
+//---- branch prediction ---------------------------------------------
+wire BrPredict_If;
+reg Branch_If, BrPredict_Id, PredictionWrong, PredictionRight;
+reg [31:0] BranchAddr_If, BranchedAddr_If, SignExtend_If;
+reg [31:0] CorrectAddr_Id;
+
+PredictionUnit Predict1(.BrPre(BrPredict_If), .clk(clk), .rst_n(rst_n), .stall(Stall), .PreWrong(PredictionWrong), .PreRight(PredictionRight));
+
 HazardDetectionUnit Hazard1(.IdExMemRead(ctrl_Ex[5]), .IdExRegRt(Rt_Ex), .IfIdRegRt(Instruction_Id[20:16]),
                             .IfIdRegRs(Instruction_Id[25:21]), .Branch(ctrl_Id[3]), .Jr(Jr_Id), 
 							.Jal_Ex(ctrl_Ex[0]), .Jal_Mem(ctrl_Mem[0]), .Jal_Wb(Jal_Wb),
@@ -135,17 +145,33 @@ always@(posedge clk or negedge rst_n) begin
 	end
 end
 
+	
+
 always@(*) begin
 	PC4_If = PC + 4;
 	IfId_n = (Stall || ICACHE_stall || DCACHE_stall) ? IfId : 
 	         (IfIdflush) ? {PC4_If,32'd0} : {PC4_If,ICACHE_rdata};
+	
+	//---- branch prediction ---------------------------------------------
+
+	Branch_If = (ICACHE_rdata[31:26] == 6'b000100) ? 1'b1 : 1'b0;
+	SignExtend_If = {{16{ICACHE_rdata[15]}}, ICACHE_rdata[15:0]};
+	BranchAddr_If = (Stall || ICACHE_stall || DCACHE_stall) ? BranchAddr_Id : 
+	                (IfIdflush) ? PC4_If : PC4_If + (SignExtend_If << 2);
+	BranchedAddr_If = (BrPredict_If && Branch_If) ? BranchAddr_If : PC4_If;
+	MUX_Branch = (PredictionWrong  && ~Stall) ? CorrectAddr_Id : BranchedAddr_If;
+			 
 end
 
 always@(posedge clk or negedge rst_n) begin
 	if(~rst_n) begin
 		IfId <= 0;
+		BranchAddr_Id <= 0;
+		BrPredict_Id <= 0;
 	end else begin
 		IfId <= IfId_n;
+		BranchAddr_Id <= BranchAddr_If;
+		BrPredict_Id <= BrPredict_If;
 	end
 end
 
@@ -153,12 +179,20 @@ end
 
 always@(*) begin
 	PC4_Id = IfId[63:32];
+	
+	//---- branch prediction ---------------------------------------------
+	PredictionWrong =  (ctrl_Id[3] &&( BrPredict_Id ^ (ReadData1 == ReadData2))) ? 1'b1: 1'b0;
+	PredictionRight =  (ctrl_Id[3] &&( BrPredict_Id == (ReadData1 == ReadData2))) ? 1'b1: 1'b0;
+	CorrectAddr_Id = (ctrl_Id[3] && (ReadData1 == ReadData2)) ? BranchAddr_Id : PC4_Id;
+	
+	
 	Instruction_Id = IfId[31:0];
 	WriteReg = (Jal_Wb) ? 5'd31 : WriteReg_Wb ;
 	Writedata = (Jal_Wb) ? PC4_Wb : Writedata_Wb ;
 	SignExtend_Id = {{16{Instruction_Id[15]}}, Instruction_Id[15:0]};
-	BranchAddr_Id = PC4_Id + (SignExtend_Id << 2);
-	IfIdflush = ((ctrl_Id[3] && (ReadData1 == ReadData2) || Jump_Id) && ~Stall) ? 1 : 0;
+//	BranchAddr_Id = PC4_Id + (SignExtend_Id << 2);
+	IfIdflush = ( (PredictionWrong || Jump_Id) && ~Stall) ? 1 : 0;
+//	IfIdflush = ((ctrl_Id[3] && (ReadData1 == ReadData2) || Jump_Id) && ~Stall) ? 1 : 0;
 	IdEx_n = (DCACHE_stall) ? IdEx :
 	         (Stall||ICACHE_stall) ? {PC4_Id, 8'b00000000, ReadData1, ReadData2, ALUctrl_Id, SignExtend_Id, Instruction_Id[25:16]} :
              {PC4_Id, ctrl_Id, ReadData1, ReadData2, ALUctrl_Id, SignExtend_Id, Instruction_Id[25:16]};
@@ -223,7 +257,7 @@ always@(*) begin
 	{PC4_Wb, MemtoReg_Wb, RegWrite_Wb, Jal_Wb, MemReadData_Wb, ALUOut_Wb, WriteReg_Wb} = MemWb;
 	Writedata_Wb = (MemtoReg_Wb) ? MemReadData_Wb : ALUOut_Wb;
 	
-	MUX_Branch = (ctrl_Id[3] && (ReadData1 == ReadData2) && ~Stall) ? BranchAddr_Id : PC4_If;
+//	MUX_Branch = (ctrl_Id[3] && (ReadData1 == ReadData2) && ~Stall) ? BranchAddr_Id : PC4_If;
 	MUX_Jump = (Jump_Id) ? {PC4_If[31:28],Instruction_Id[25:0],2'b00} : MUX_Branch;
 	PCnext = (Jr_Id) ? ReadData1 : MUX_Jump;	
 	PC_n = (Stall || ICACHE_stall || DCACHE_stall) ? PC : PCnext;
