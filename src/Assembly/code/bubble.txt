@@ -1,0 +1,33 @@
+.text
+main:	addi $s0,$zero,50
+	addi $s1,$zero,0
+bbst:	add $t1,$zero,$zero
+biglp:	add $t0,$s1,$zero
+	addi $t1,$t1,1
+	bge $t1,$s0,endst		# if i == n, then the bubblesort is finished
+	add $t2,$zero,$zero		# j, counts fot the smallloop
+	sub $t5,$s0,$t1		# $t5 = n - i
+smlp:	bge $t2,$t5,biglp	# when j >== n - i, the smallloop is finished
+	lw $t3,0($t0)		# $t3 = base[j]
+	lw $t4,4($t0)		# $t4 = base[j+1]
+	bge $t3,$t4,swap	#if base[j]>base[j+1], swap base[j] and base[j+1]
+	addi $t0,$t0,4
+	addi $t2,$t2,1		# j++
+	j smlp
+swap:	sw $t3,4($t0)
+	sw $t4,0($t0)
+	addi $t0,$t0,4
+	addi $t2,$t2,1		# j++
+	j smlp
+endst:	addi $t2,$zero,0x0932 
+	add $t0,$s1,$zero	#t0:address
+	add $t1,$zero,$zero	#t1:count
+	sw $t2,0x0100($zero)
+check:	beq $t1,$s0,over	#t1 = s0,over
+	lw $t2,0($t0)
+	addi $t0,$t0,4
+	sw $t2,0x0100($zero)
+	j check
+over:	addi $t2,$zero,0x0D5D
+	sw $t2,0x0100($zero)
+trap:	j trap
