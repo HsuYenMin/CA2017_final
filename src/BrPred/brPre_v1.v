@@ -20,13 +20,15 @@ module PredictionUnit(
 	parameter NonTaken2 = 2'b01; 
 	
 	reg [1:0] state_r, state_w;
+	reg last_PreRight_r, last_preWrong_r;
 	
+	assign Change = ((last_PreRight_r^PreRight) || (last_preWrong_r^PreWrong)) ? 1'b1 : 1'b0 ;
 	
 	assign BrPre = state_r[1];
 	// combinational
 	always@(*) begin
-		if(stall) state_w = state_r;
-		else begin
+		//if(stall) state_w = state_r;
+		if(Change && ~stall) begin
 			case(state_r)
 				Taken1: begin
 					state_w = state_r;
@@ -49,15 +51,19 @@ module PredictionUnit(
 					if(PreWrong) state_w = NonTaken1;
 				end
 			endcase
-		end
+		end else state_w = state_r;
 	end
 	
 	// sequential
 	always@(posedge clk or negedge rst_n) begin
 		if(~rst_n) begin
 			state_r <= 0;
+			last_PreRight_r <= 0;
+			last_preWrong_r <= 0;
 		end else begin
 			state_r <= state_w;
+			last_PreRight_r <= PreRight;
+			last_preWrong_r <= PreWrong;
 		end
 	end
 
