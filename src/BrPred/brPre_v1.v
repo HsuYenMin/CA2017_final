@@ -28,27 +28,23 @@ module PredictionUnit(
 	// combinational
 	always@(*) begin
 		//if(stall) state_w = state_r;
-		if(Change && ~stall) begin
+		if(Change && ~stall && (PreRight|PreWrong)) begin
 			case(state_r)
 				Taken1: begin
-					state_w = state_r;
 					if(PreRight) state_w = Taken2;
-					if(PreWrong) state_w = NonTaken1;
+					else state_w = NonTaken1;
 				end
 				Taken2: begin
-					state_w = state_r;
 					if(PreRight) state_w = Taken2;
-					if(PreWrong) state_w = Taken1;
+					else state_w = Taken1;
 				end
 				NonTaken1: begin
-					state_w = state_r;
 					if(PreRight) state_w = NonTaken2;
-					if(PreWrong) state_w = Taken1;
+					else state_w = Taken1;
 				end
 				NonTaken2: begin
-					state_w = state_r;
 					if(PreRight) state_w = NonTaken2;
-					if(PreWrong) state_w = NonTaken1;
+					else state_w = NonTaken1;
 				end
 			endcase
 		end else state_w = state_r;

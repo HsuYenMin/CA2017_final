@@ -108,6 +108,7 @@ reg [31:0] BranchAddr_If, BranchedAddr_If, SignExtend_If;
 reg [31:0] CorrectAddr_Id;
 
 PredictionUnit Predict1(.BrPre(BrPredict_If), .clk(clk), .rst_n(rst_n), .stall(Stall), .PreWrong(PredictionWrong), .PreRight(PredictionRight));
+//---- branch prediction ---------------------------------------------
 
 HazardDetectionUnit Hazard1(.IdExMemRead(ctrl_Ex[5]), .IdExRegRt(Rt_Ex), .IfIdRegRt(Instruction_Id[20:16]),
                             .IfIdRegRs(Instruction_Id[25:21]), .Branch(ctrl_Id[3]), .Jr(Jr_Id), 
@@ -160,7 +161,12 @@ always@(*) begin
 	                (IfIdflush) ? PC4_If : PC4_If + (SignExtend_If << 2);
 	BranchedAddr_If = (BrPredict_If && Branch_If) ? BranchAddr_If : PC4_If;
 	MUX_Branch = (PredictionWrong  && ~Stall) ? CorrectAddr_Id : BranchedAddr_If;
+	//---- branch prediction ---------------------------------------------
 			 
+//	MUX_Branch = (ctrl_Id[3] && (ReadData1 == ReadData2) && ~Stall) ? BranchAddr_Id : PC4_If;
+	MUX_Jump = (Jump_Id) ? {PC4_If[31:28],Instruction_Id[25:0],2'b00} : MUX_Branch;
+	PCnext = (Jr_Id) ? ReadData1 : MUX_Jump;	
+	PC_n = (Stall || ICACHE_stall || DCACHE_stall) ? PC : PCnext;
 end
 
 always@(posedge clk or negedge rst_n) begin
@@ -175,7 +181,7 @@ always@(posedge clk or negedge rst_n) begin
 	end
 end
 
-//--	 ID Stage --------------------------
+//-- ID Stage --------------------------
 
 always@(*) begin
 	PC4_Id = IfId[63:32];
@@ -184,7 +190,8 @@ always@(*) begin
 	PredictionWrong =  (ctrl_Id[3] &&( BrPredict_Id ^ (ReadData1 == ReadData2))) ? 1'b1: 1'b0;
 	PredictionRight =  (ctrl_Id[3] &&( BrPredict_Id == (ReadData1 == ReadData2))) ? 1'b1: 1'b0;
 	CorrectAddr_Id = (ctrl_Id[3] && (ReadData1 == ReadData2)) ? BranchAddr_Id : PC4_Id;
-	
+	//---- branch prediction ---------------------------------------------
+				
 	
 	Instruction_Id = IfId[31:0];
 	WriteReg = (Jal_Wb) ? 5'd31 : WriteReg_Wb ;
@@ -257,10 +264,6 @@ always@(*) begin
 	{PC4_Wb, MemtoReg_Wb, RegWrite_Wb, Jal_Wb, MemReadData_Wb, ALUOut_Wb, WriteReg_Wb} = MemWb;
 	Writedata_Wb = (MemtoReg_Wb) ? MemReadData_Wb : ALUOut_Wb;
 	
-//	MUX_Branch = (ctrl_Id[3] && (ReadData1 == ReadData2) && ~Stall) ? BranchAddr_Id : PC4_If;
-	MUX_Jump = (Jump_Id) ? {PC4_If[31:28],Instruction_Id[25:0],2'b00} : MUX_Branch;
-	PCnext = (Jr_Id) ? ReadData1 : MUX_Jump;	
-	PC_n = (Stall || ICACHE_stall || DCACHE_stall) ? PC : PCnext;
 end
 
 //--------------------------------------------------------------------------
