@@ -1,0 +1,2 @@
+CHIP_syn.v is synthesis with clk cycle 2.6
+CHIP_syn.v has passed I_mem_hasHazard with clk cycle 2.6

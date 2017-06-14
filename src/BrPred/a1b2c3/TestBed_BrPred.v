@@ -60,7 +60,7 @@ module	TestBed(
 		case( curstate )
 		state_idle: 	begin
 							nxtaddr = 0;
-							nxtduration = 0;
+							nxtduration = duration + 1;
 	
 							if( addr==`TestPort && data==`answer && wen )
 							begin
