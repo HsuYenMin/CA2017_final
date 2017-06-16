@@ -21,22 +21,22 @@ with open("I_mem_BrPredref", "r") as f:
     for line in f:
         if 'modify1' in line:
             # annotation
-            line = line.replace(" 10 ",               '{:^5}'.format(nb_notBEQ, 'd')) 
+            line = line.replace(" 10 ",               '{:^5}'.format(nb_notBEQ, 'd'))
             # instruction
             line = line.replace("0000000000001010",   format(nb_notBEQ, 'b').zfill(16)) # I-type operand immediate 16 bit
         elif 'modify2' in line:
             # annotation
-            line = line.replace(" 20 ",               '{:^5}'.format(nb_interBEQ, 'd')) 
+            line = line.replace(" 20 ",               '{:^5}'.format(nb_interBEQ, 'd'))
             # instruction
             line = line.replace("0000000000010100",   format(nb_interBEQ, 'b').zfill(16)) # I-type operand immediate 16 bit
         elif 'modify3' in line:
             # annotation
-            line = line.replace(" 30 ",               '{:^5}'.format(nb_BEQ, 'd')) 
+            line = line.replace(" 30 ",               '{:^5}'.format(nb_BEQ, 'd'))
             I_mem_BrPred_file.write(line)
             break
-            
+
         I_mem_BrPred_file.write(line)
-        
+
 for i in range(nb_BEQ):
     I_mem_BrPred_file.write("000000_00111_00011_00111_00000_100000      //add  r7,r7,r3\n000100_00001_00010_0000000000000001        //beq  r1,r2, 0x0001\n000010_00000000000000000000001110          //j    14\n")
 
@@ -51,12 +51,9 @@ TestBed_BrPred_file = open('TestBed_BrPred.v','w')
 with open("TestBed_BrPredref.v", "r") as f:
     for line in f:
         if '`define	answer' in line:
-            line = line.replace("60",format(nb_notBEQ+nb_interBEQ+nb_BEQ, 'd')) 
+            line = line.replace("60",format(nb_notBEQ+nb_interBEQ+nb_BEQ, 'd'))
         TestBed_BrPred_file.write(line)
 TestBed_BrPred_file.close()
 
 
 # In[ ]:
-
-
-
