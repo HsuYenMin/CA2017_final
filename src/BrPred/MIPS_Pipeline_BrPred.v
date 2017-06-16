@@ -107,7 +107,7 @@ reg Branch_If, BrPredict_Id, PredictionWrong, PredictionRight;
 reg [31:0] BranchAddr_If, BranchedAddr_If, SignExtend_If;
 reg [31:0] CorrectAddr_Id;
 
-PredictionUnit Predict1(.BrPre(BrPredict_If), .clk(clk), .rst_n(rst_n), .stall(Stall), .PreWrong(PredictionWrong), .PreRight(PredictionRight));
+PredictionUnit Predict1(.BrPre(BrPredict_If), .clk(clk), .rst_n(rst_n), .stall(Stall|ICACHE_stall), .PreWrong(PredictionWrong), .PreRight(PredictionRight));
 //---- branch prediction ---------------------------------------------
 
 HazardDetectionUnit Hazard1(.IdExMemRead(ctrl_Ex[5]), .IdExRegRt(Rt_Ex), .IfIdRegRt(Instruction_Id[20:16]),
