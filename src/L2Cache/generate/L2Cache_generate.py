@@ -1,23 +1,23 @@
 
 # coding: utf-8
 
-# In[6]:
+# In[1]:
 
 import sys
 
 
-# In[7]:
+# In[2]:
 
 def fibR(n):
- assert(n>0)
- if n==1 or n==2:
-  return 1
- return fibR(n-1)+fibR(n-2)
+    assert(n>0)
+    if n==1 or n==2:
+        return 1
+    return fibR(n-1)+fibR(n-2)
 
-def param(nb):
+def param_p1p2p3(nb):
     m1 = nb-2
-    m2 = 4*(nb-1)
-    m3 = 4*nb
+    m2 = 4*((nb-1)+(nb-2)*3)
+    m3 = 4*(nb+(nb-2)*3)
     return m1, m2, m3
 
 
@@ -26,8 +26,8 @@ def param(nb):
 #         number = len(fib_list)+1 (0)
 #         transform
 #         //addi $3 $0 14   / addi r3, r0, 0x000E, r3 = 16-2
-#         //addi $7 $0 003c / addi r7, r0, 0x003c, r7 = 4*(number-1)
-#         //addi $7 $0 0040 / addi r7, r0, 0x0040, r7 = 4*number)    
+#         //addi $7 $0 00E4 / addi r7, r0, 0x00E4, r7 = 4*[(number-1)+(number-2)*3]
+#         //addi $7 $0 00E0 / addi r7, r0, 0x00E0, r7 = 4*[(number-2)+(number-2)*3]   
 #         to
 #         //addi $3 $0 m1   
 #         //addi $7 $0 m2 
@@ -69,30 +69,38 @@ def param(nb):
 #             6'd31:	answer = 32'd0;
 #             6'd32:	answer = `EndSymbol;          
 
-# In[8]:
+# In[3]:
 
 nb = int(sys.argv[1])
 
 # nb = 20
-CheckNum = nb*2 + 1 #`EndSymbol
-
-m1, m2,  m3 = param(nb)
+# nb = 16
+m1, m2,  m3 = param_p1p2p3(nb)
 
 fib_list = [0]+[fibR(i) for i in range(1,nb)]
-fib_list_reverse = fib_list.copy()
-fib_list_reverse.reverse()
-write_list = fib_list + fib_list_reverse 
+### for solving issue: sequence lenghth extension not enough 
+gen_list_p1p2p3 = [0,1]
+for v in fib_list[2:]:
+    gen_list_p1p2p3 += [v, v+1, v+2, v+3]
+    
+seq_sort = sorted(gen_list_p1p2p3)
+seq_sort = seq_sort.copy()
+seq_sort.reverse()
+
+write_list = gen_list_p1p2p3 + seq_sort 
+
+CheckNum = len(write_list) + 1 #`EndSymbol
 
 
-# In[9]:
+# In[4]:
 
 TestBed_L2Cache_file = open('TestBed_L2Cache.v','w')
 
 
-with open("TestBed_hasHazard.v", "r") as f:
+with open("TestBed_L2Cache_ref.v", "r") as f:
     for line in f:
         if 'modify' in line:
-            line = line.replace("33", format(CheckNum, 'd'))
+            line = line.replace("117", format(CheckNum, 'd'))
         
         if 'modify2' in line: 
             line = line.replace("xxx", format(fib_list[-1], 'd'))
@@ -101,17 +109,17 @@ with open("TestBed_hasHazard.v", "r") as f:
         TestBed_L2Cache_file.write(line)
 
 for i, ans in enumerate(write_list):
-    TestBed_L2Cache_file.write("\t\t6'd%d :answer = 32'd%d;\n" %(i,ans))
+    TestBed_L2Cache_file.write("\t\t10'd%d :answer = 32'd%d;\n" %(i,ans))
     
-TestBed_L2Cache_file.write("\t\t6'd%d :answer = `EndSymbol;\n\t\tendcase\n\tend\n\nendmodule" %(CheckNum-1))
+TestBed_L2Cache_file.write("\t\t10'd%d :answer = `EndSymbol;\n\t\tendcase\n\tend\n\nendmodule" %(CheckNum-1))
 TestBed_L2Cache_file.close()
 
 
-# In[10]:
+# In[5]:
 
 I_mem_L2Cache_file = open('I_mem_L2Cache','w')
 
-with open("I_mem_hasHazard", "r") as f:
+with open("I_mem_L2Cache_ref", "r") as f:
     for line in f:
         if 'modify1' in line:
             # annotation
@@ -124,18 +132,18 @@ with open("I_mem_hasHazard", "r") as f:
             line = line.replace("00000_00000_001110", format(m1, 'b').zfill(16)) # I-type operand immediate 16 bit
         elif 'modify2' in line:
             # annotation
-            line = line.replace("0x03c",              format(m2, 'x').zfill(4))  # I-type operand immediate 16 bit
-            line = line.replace("60",                 format(m2, 'd')) 
+            line = line.replace("E4",              format(m2, 'x').zfill(4))  # I-type operand immediate 16 bit
+            line = line.replace("228",                 format(m2, 'd')) 
             
             # instruction
-            line = line.replace("00000_00000_111100", format(m2, 'b').zfill(16)) # I-type operand immediate 16 bit
+            line = line.replace("00000_00011100100", format(m2, 'b').zfill(16)) # I-type operand immediate 16 bit
         elif 'modify3' in line:
             # annotation
-            line = line.replace("0x0040",             format(m3, 'x').zfill(4))  # I-type operand immediate 16 bit
-            line = line.replace("64",                 format(m3, 'd')) 
+            line = line.replace("E8",             format(m3, 'x').zfill(4))  # I-type operand immediate 16 bit
+            line = line.replace("232",                 format(m3, 'd')) 
             
             # instruction
-            line = line.replace("0000000001000000",   format(m3, 'b').zfill(16)) # I-type operand immediate 16 bit
+            line = line.replace("0000000011101000",   format(m3, 'b').zfill(16)) # I-type operand immediate 16 bit
         
         I_mem_L2Cache_file.write(line)
 I_mem_L2Cache_file.close()
