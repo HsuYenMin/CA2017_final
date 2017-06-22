@@ -1,0 +1,77 @@
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+        -sort_by group
+Design : CHIP
+Version: G-2012.06
+Date   : Sat Jun 17 15:30:53 2017
+****************************************
+
+ # A fanout number of 1000 was used for high fanout net computations.
+
+Operating Conditions: slow   Library: slow
+Wire Load Model Mode: top
+
+  Startpoint: i_MIPS/IdEx_reg[0]
+              (rising edge-triggered flip-flop clocked by CLK)
+  Endpoint: i_MIPS/ExMem_reg[39]
+            (rising edge-triggered flip-flop clocked by CLK)
+  Path Group: CLK
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  CHIP               tsmc13_wl10           slow
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock CLK (rise edge)                                   0.00       0.00
+  clock network delay (ideal)                             0.50       0.50
+  i_MIPS/IdEx_reg[0]/CK (DFFRHQX8)                        0.00 #     0.50 r
+  i_MIPS/IdEx_reg[0]/Q (DFFRHQX8)                         0.18       0.68 r
+  i_MIPS/Forward1/IdExRt[0] (ForwardUnit)                 0.00       0.68 r
+  i_MIPS/Forward1/U3/Y (INVX12)                           0.03       0.71 f
+  i_MIPS/Forward1/U8/Y (NAND2X4)                          0.05       0.76 r
+  i_MIPS/Forward1/U39/Y (AND2X8)                          0.08       0.83 r
+  i_MIPS/Forward1/U37/Y (AND4X8)                          0.10       0.93 r
+  i_MIPS/Forward1/U4/Y (NAND4X6)                          0.05       0.98 f
+  i_MIPS/Forward1/U60/Y (AOI2BB1X4)                       0.10       1.07 r
+  i_MIPS/Forward1/U40/Y (BUFX20)                          0.09       1.16 r
+  i_MIPS/Forward1/ForwardB[0] (ForwardUnit)               0.00       1.16 r
+  i_MIPS/U72/Y (XOR2X4)                                   0.09       1.25 f
+  i_MIPS/U70/Y (NAND2X8)                                  0.09       1.34 r
+  i_MIPS/U158/Y (CLKINVX20)                               0.05       1.39 f
+  i_MIPS/U159/Y (CLKINVX20)                               0.07       1.46 r
+  i_MIPS/U520/Y (AOI2BB1X4)                               0.14       1.59 r
+  i_MIPS/U91/Y (NAND2X8)                                  0.06       1.65 f
+  i_MIPS/Alu1/y[2] (ALU)                                  0.00       1.65 f
+  i_MIPS/Alu1/U284/Y (BUFX20)                             0.10       1.76 f
+  i_MIPS/Alu1/add_22_S2/B[2] (ALU_DW01_add_2)             0.00       1.76 f
+  i_MIPS/Alu1/add_22_S2/U473/Y (NOR2X4)                   0.11       1.86 r
+  i_MIPS/Alu1/add_22_S2/U472/Y (BUFX8)                    0.09       1.95 r
+  i_MIPS/Alu1/add_22_S2/U434/Y (CLKINVX1)                 0.06       2.01 f
+  i_MIPS/Alu1/add_22_S2/U519/Y (NAND2XL)                  0.15       2.16 r
+  i_MIPS/Alu1/add_22_S2/U679/Y (XOR2XL)                   0.30       2.46 r
+  i_MIPS/Alu1/add_22_S2/SUM[2] (ALU_DW01_add_2)           0.00       2.46 r
+  i_MIPS/Alu1/U193/Y (AOI2BB2X1)                          0.20       2.67 f
+  i_MIPS/Alu1/U427/Y (NAND4X4)                            0.12       2.79 r
+  i_MIPS/Alu1/out[2] (ALU)                                0.00       2.79 r
+  i_MIPS/U631/Y (MX2X2)                                   0.12       2.91 r
+  i_MIPS/ExMem_reg[39]/D (DFFRX4)                         0.00       2.91 r
+  data arrival time                                                  2.91
+
+  clock CLK (rise edge)                                   2.60       2.60
+  clock network delay (ideal)                             0.50       3.10
+  clock uncertainty                                      -0.10       3.00
+  i_MIPS/ExMem_reg[39]/CK (DFFRX4)                        0.00       3.00 r
+  library setup time                                     -0.09       2.91
+  data required time                                                 2.91
+  --------------------------------------------------------------------------
+  data required time                                                 2.91
+  data arrival time                                                 -2.91
+  --------------------------------------------------------------------------
+  slack (MET)                                                        0.00
+
+

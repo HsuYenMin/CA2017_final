@@ -20,9 +20,10 @@ module PredictionUnit(
 	parameter NonTaken2 = 2'b01; 
 	
 	reg [1:0] state_r, state_w;
-	reg last_PreRight_r, last_preWrong_r;
+	reg last_PreRight_r, last_preWrong_r, last_stall_r;
+	wire Change;
 	
-	assign Change = ((last_PreRight_r^PreRight) || (last_preWrong_r^PreWrong)) ? 1'b1 : 1'b0 ;
+	assign Change = ((last_PreRight_r^PreRight) || (last_preWrong_r^PreWrong) || (last_stall_r^stall)) ? 1'b1 : 1'b0 ;
 	
 	assign BrPre = state_r[1];
 	// combinational
@@ -56,10 +57,12 @@ module PredictionUnit(
 			state_r <= 0;
 			last_PreRight_r <= 0;
 			last_preWrong_r <= 0;
+			last_stall_r <= 0;
 		end else begin
 			state_r <= state_w;
 			last_PreRight_r <= PreRight;
 			last_preWrong_r <= PreWrong;
+			last_stall_r <= stall;
 		end
 	end
 

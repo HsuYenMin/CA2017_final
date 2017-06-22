@@ -1,0 +1,26 @@
+****************************************
+Report : area
+Design : CHIP
+Version: G-2012.06
+Date   : Thu Jun 15 12:13:12 2017
+****************************************
+
+Library(s) Used:
+
+    typical (File: /home/raid7_2/course/cvsd/CBDK_IC_Contest/CIC/SynopsysDC/db/typical.db)
+
+Number of ports:                          639
+Number of nets:                           886
+Number of cells:                          119
+Number of combinational cells:            116
+Number of sequential cells:                 0
+Number of macros:                           0
+Number of buf/inv:                        116
+Number of references:                      25
+
+Combinational area:       177381.692932
+Noncombinational area:    140164.498581
+Net Interconnect area:    2270438.339691
+
+Total cell area:          317546.191513
+Total area:               2587984.531204

@@ -3,7 +3,7 @@
 
 `timescale 1 ns/10 ps
 
-`define CYCLE 2.6  // You can modify your clock frequency
+`define CYCLE 2.5  // You can modify your clock frequency
 
 `define DMEM_INIT "D_mem"
 `define SDFFILE   "./CHIP_syn.sdf"	// Modify your SDF file name
@@ -153,7 +153,9 @@ module Final_tb;
 	always #(`CYCLE*0.5) clk = ~clk;
 	
 	always@(finish)
-	    if(finish)
+	    if(finish) begin
+		   $display("Duration: %d",duration);
 	       #(`CYCLE) $finish;		   
+		end
 	
 endmodule

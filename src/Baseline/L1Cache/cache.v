@@ -68,7 +68,7 @@ assign mem_read = mem_read_out; //(state_r == ALLOCATE) ? 1'b1 : 1'b0;
 assign mem_write = mem_write_out; //(state_r == WRITEBACK) ? 1'b1 : 1'b0;
 
 assign mem_addr = (mem_write_out)? {CacheMem_r[SetNum][152:128],SetNum} : proc_addr_r[29:2];
-assign mem_wdata  = mem_wdata_out;
+assign mem_wdata  = mem_wdata_r;
 assign proc_rdata = proc_data_out;
 
 

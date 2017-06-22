@@ -50,7 +50,7 @@ always@(*) begin
 			Stall_out = 0;
 		end
 	end else begin 
-		if(Jr && (Jal_Ex|Jal_Mem|Jal_Wb)) begin // Jr after Jal stall till Jal is done
+		if(Jal_Ex|Jal_Mem|Jal_Wb) begin // Jr after Jal stall till Jal is done
 			Stall_out = 1;
 		end else begin
 			Stall_out = 0;
