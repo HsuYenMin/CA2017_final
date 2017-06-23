@@ -1,0 +1,28 @@
+****************************************
+Report : area
+Design : CHIP
+Version: G-2012.06
+Date   : Fri Jun 23 13:00:25 2017
+****************************************
+
+Information: Updating design information... (UID-85)
+Warning: Design 'CHIP' contains 1 high-fanout nets. A fanout number of 1000 will be used for delay calculations involving these nets. (TIM-134)
+Library(s) Used:
+
+    typical (File: /home/raid7_2/course/cvsd/CBDK_IC_Contest/CIC/SynopsysDC/db/typical.db)
+
+Number of ports:                          640
+Number of nets:                           942
+Number of cells:                          174
+Number of combinational cells:            171
+Number of sequential cells:                 0
+Number of macros:                           0
+Number of buf/inv:                        171
+Number of references:                      23
+
+Combinational area:       187119.676613
+Noncombinational area:    148116.816883
+Net Interconnect area:    2367178.833893
+
+Total cell area:          335236.493496
+Total area:               2702415.327389

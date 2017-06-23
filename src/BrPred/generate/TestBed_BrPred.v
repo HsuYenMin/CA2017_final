@@ -1,7 +1,7 @@
 `timescale 1 ns/10 ps
 
 `define	TestPort	30'd0 
-`define	answer	32'd65
+`define	answer	32'd90
 
 module	TestBed(
 	clk,

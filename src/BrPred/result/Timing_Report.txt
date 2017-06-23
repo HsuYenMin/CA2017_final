@@ -1,0 +1,81 @@
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+        -sort_by group
+Design : CHIP
+Version: G-2012.06
+Date   : Fri Jun 23 13:00:36 2017
+****************************************
+
+ # A fanout number of 1000 was used for high fanout net computations.
+
+Operating Conditions: slow   Library: slow
+Wire Load Model Mode: top
+
+  Startpoint: i_MIPS/MemWb_reg[3]
+              (rising edge-triggered flip-flop clocked by CLK)
+  Endpoint: i_MIPS/ExMem_reg[62]
+            (rising edge-triggered flip-flop clocked by CLK)
+  Path Group: CLK
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  CHIP               tsmc13_wl10           slow
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock CLK (rise edge)                                   0.00       0.00
+  clock network delay (ideal)                             0.50       0.50
+  i_MIPS/MemWb_reg[3]/CK (DFFRHQX8)                       0.00 #     0.50 r
+  i_MIPS/MemWb_reg[3]/Q (DFFRHQX8)                        0.19       0.69 r
+  i_MIPS/Forward1/MemWbRd[3] (ForwardUnit)                0.00       0.69 r
+  i_MIPS/Forward1/U44/Y (OR2X8)                           0.10       0.78 r
+  i_MIPS/Forward1/U43/Y (NAND2X8)                         0.04       0.82 f
+  i_MIPS/Forward1/U52/Y (NOR4X8)                          0.13       0.95 r
+  i_MIPS/Forward1/U55/Y (AND4X8)                          0.11       1.05 r
+  i_MIPS/Forward1/U67/Y (OA21X4)                          0.14       1.19 r
+  i_MIPS/Forward1/ForwardA[0] (ForwardUnit)               0.00       1.19 r
+  i_MIPS/U135/Y (INVX12)                                  0.06       1.25 f
+  i_MIPS/U434/Y (NOR3X8)                                  0.09       1.34 r
+  i_MIPS/U98/Y (INVX16)                                   0.05       1.39 f
+  i_MIPS/U468/Y (CLKINVX20)                               0.05       1.43 r
+  i_MIPS/U676/Y (CLKINVX20)                               0.05       1.48 f
+  i_MIPS/U713/Y (OA22X4)                                  0.14       1.62 f
+  i_MIPS/U766/Y (OAI221X2)                                0.10       1.72 r
+  i_MIPS/Alu1/x[5] (ALU)                                  0.00       1.72 r
+  i_MIPS/Alu1/U201/Y (INVX6)                              0.08       1.80 f
+  i_MIPS/Alu1/U490/Y (CLKINVX12)                          0.07       1.87 r
+  i_MIPS/Alu1/sub_23_S2/A[5] (ALU_DW01_sub_4)             0.00       1.87 r
+  i_MIPS/Alu1/sub_23_S2/U696/Y (NOR2X8)                   0.06       1.93 f
+  i_MIPS/Alu1/sub_23_S2/U719/Y (OAI21X4)                  0.12       2.04 r
+  i_MIPS/Alu1/sub_23_S2/U693/Y (AOI21X4)                  0.07       2.11 f
+  i_MIPS/Alu1/sub_23_S2/U288/Y (OAI21X4)                  0.08       2.19 r
+  i_MIPS/Alu1/sub_23_S2/U713/Y (AOI21X4)                  0.09       2.28 f
+  i_MIPS/Alu1/sub_23_S2/U430/Y (CLKBUFX20)                0.13       2.41 f
+  i_MIPS/Alu1/sub_23_S2/U441/Y (OR2X8)                    0.12       2.52 f
+  i_MIPS/Alu1/sub_23_S2/U387/Y (NAND2X6)                  0.04       2.56 r
+  i_MIPS/Alu1/sub_23_S2/U604/Y (XOR2X4)                   0.08       2.64 f
+  i_MIPS/Alu1/sub_23_S2/DIFF[25] (ALU_DW01_sub_4)         0.00       2.64 f
+  i_MIPS/Alu1/U196/Y (NAND2BX4)                           0.07       2.71 r
+  i_MIPS/Alu1/U53/Y (NAND4X4)                             0.07       2.78 f
+  i_MIPS/Alu1/out[25] (ALU)                               0.00       2.78 f
+  i_MIPS/U662/Y (OAI2BB2X4)                               0.10       2.88 f
+  i_MIPS/ExMem_reg[62]/D (DFFRHQX4)                       0.00       2.88 f
+  data arrival time                                                  2.88
+
+  clock CLK (rise edge)                                   2.58       2.58
+  clock network delay (ideal)                             0.50       3.08
+  clock uncertainty                                      -0.10       2.98
+  i_MIPS/ExMem_reg[62]/CK (DFFRHQX4)                      0.00       2.98 r
+  library setup time                                     -0.10       2.88
+  data required time                                                 2.88
+  --------------------------------------------------------------------------
+  data required time                                                 2.88
+  data arrival time                                                 -2.88
+  --------------------------------------------------------------------------
+  slack (MET)                                                        0.00
+
+
