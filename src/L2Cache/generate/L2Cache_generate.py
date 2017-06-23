@@ -2,7 +2,7 @@
 # coding: utf-8
 
 # In[1]:
-
+from math import sqrt
 import sys
 
 
@@ -10,9 +10,7 @@ import sys
 
 def fibR(n):
     assert(n>0)
-    if n==1 or n==2:
-        return 1
-    return fibR(n-1)+fibR(n-2)
+    return int(((1+sqrt(5))**n-(1-sqrt(5))**n)/(2**n*sqrt(5)))
 
 def param_p1p2p3(nb):
     m1 = nb-2

@@ -2,22 +2,28 @@
 `define	TestPort	30'hFF        //testoutput : store register $30 to memory FF(255)      
 `define	BeginSymbol	32'h00000932
 `define	EndSymbol	32'h00000D5D
-`define	CheckNum	10'd149       // modify1 for number*2+1(CheckNum)
+`define	CheckNum	32'd149       // modify1 for number*2+1(CheckNum)
 
 module	TestBed(
 	clk,
 	rst,
 	addr,
 	data,
+    ren,
 	wen,
 	error_num,
 	duration,
-	finish
+	finish,
+    hit_or_miss_L1_D,
+    hit_or_miss_L1_I
 );
 	input			clk, rst;
 	input	[29:0]	addr;
 	input	[31:0]	data;
 	input			wen;
+    input           ren;
+    input   [1:0]   hit_or_miss_L1_D;
+    input   [1:0]   hit_or_miss_L1_I;
 
 	output	[7:0]	error_num;
 	output	[15:0]	duration;
@@ -36,11 +42,18 @@ module	TestBed(
 	reg		[15:0]	nxtduration;
 	
 	reg				state,state_next;
-		
+//-----------------------------------
+    reg     [29:0]  addr_r;
+    reg     [31:0]  data_r;
+    reg             ren_r;
+    reg             wen_r;
+
+//-----------------------------------
 	parameter	state_idle 	= 2'b00;
 	parameter	state_check = 2'b01;
 	parameter	state_report= 2'b10;	
-		
+	integer     H1_D = 0, M1_D = 0;	
+    integer     total_clock_count = 0;
 	always@( posedge clk or negedge rst )						// State-DFF
 	begin
 		if( ~rst )
@@ -49,8 +62,14 @@ module	TestBed(
 			curaddr  <= 0;
 			duration <= 0;
 			error_num <= 8'd255;
-			
+			H1_D  <= 0;
+            M1_D  <= 0;
+            total_clock_count <= 0;
 			state <= 0;
+            addr_r <= addr;
+            data_r <= data;
+            ren_r  <= ren;
+            wen_r  <= wen;
 		end
 		else
 		begin
@@ -60,6 +79,15 @@ module	TestBed(
 			error_num <= nxt_error_num;
 			
 			state <= state_next;
+            if (ren ^ wen) begin
+                total_clock_count <= total_clock_count + 1;
+            end
+            if (hit_or_miss_L1_D == 2'b01) begin
+                H1_D <= H1_D + 1;
+            end
+            else if(hit_or_miss_L1_D == 2'b10) begin
+                M1_D <= M1_D + 1;
+            end
 		end
 	end
 			
@@ -106,6 +134,9 @@ module	TestBed(
 	begin
 		if(curstate == state_report) begin
 			$display("--------------------------- Simulation FINISH !!---------------------------");
+            $display("number of memory access in L1Cache_D = %d", H1_D);
+            $display("M1_D                                 = %d", M1_D);
+            $display("total_clock_count                    = %d", total_clock_count);
 			if (error_num) begin 
 				$display("============================================================================");
 				$display("\n (T_T) FAIL!! The simulation result is FAIL!!! there were %d errors at all.\n", error_num);
